@@ -26,20 +26,34 @@ async function loadDictionary() {
 
     try {
 
-        const response = await fetch('dictionary.txt');
-        const text = await response.text();
+        const response =
+            await fetch('dictionary.txt');
 
-        const words = text
-            .split(/\r?\n/)
-            .map(word => word.trim().toLowerCase())
-            .filter(word => word.length >= 3);
+        const text =
+            await response.text();
+
+        const words =
+            text
+                .split(/\r?\n/)
+                .map(word =>
+                    word.trim().toLowerCase()
+                )
+                .filter(word =>
+                    word.length >= 3
+                );
 
         words.forEach(word => {
 
             dictionary.add(word);
 
-            for (let i = 1; i <= word.length; i++) {
-                prefixes.add(word.substring(0, i));
+            for (
+                let i = 1;
+                i <= word.length;
+                i++
+            ) {
+                prefixes.add(
+                    word.substring(0, i)
+                );
             }
         });
 
@@ -50,14 +64,14 @@ async function loadDictionary() {
     } catch (error) {
 
         console.error(
-            'Failed to load dictionary:',
+            'Dictionary load failed:',
             error
         );
     }
 }
 
 // ====================================
-// BOARD FUNCTIONS
+// BOARD
 // ====================================
 
 function getBoard() {
@@ -67,21 +81,29 @@ function getBoard() {
             '#letterGrid input'
         );
 
-    let board = [];
+    const board = [];
 
-    for (let row = 0; row < GRID_SIZE; row++) {
+    for (
+        let row = 0;
+        row < GRID_SIZE;
+        row++
+    ) {
 
         board[row] = [];
 
-        for (let col = 0; col < GRID_SIZE; col++) {
+        for (
+            let col = 0;
+            col < GRID_SIZE;
+            col++
+        ) {
 
             board[row][col] =
                 inputs[
                     row * GRID_SIZE + col
                 ]
                 .value
-                .toLowerCase()
-                .trim();
+                .trim()
+                .toLowerCase();
         }
     }
 
@@ -89,25 +111,131 @@ function getBoard() {
 }
 
 // ====================================
-// CLEAR HIGHLIGHTS
+// CLEAR BOARD HIGHLIGHTS
 // ====================================
 
 function clearHighlights() {
+
+    document
+        .querySelectorAll(
+            '#letterGrid input'
+        )
+        .forEach(tile => {
+
+            tile.classList.remove(
+                'highlight'
+            );
+        });
+
+    const svg =
+        document.getElementById(
+            'pathOverlay'
+        );
+
+    if (svg) {
+        svg.innerHTML = '';
+    }
+}
+
+// ====================================
+// DRAW SVG PATH
+// ====================================
+
+function drawPath(path) {
+
+    const svg =
+        document.getElementById(
+            'pathOverlay'
+        );
+
+    if (!svg) return;
+
+    svg.innerHTML = '';
+
+    const board =
+        document.getElementById(
+            'letterGrid'
+        );
+
+    const boardRect =
+        board.getBoundingClientRect();
 
     const inputs =
         document.querySelectorAll(
             '#letterGrid input'
         );
 
-    inputs.forEach(input => {
-        input.classList.remove(
-            'highlight'
+    const points = [];
+
+    path.forEach(([row, col]) => {
+
+        const index =
+            row * GRID_SIZE + col;
+
+        const tile =
+            inputs[index];
+
+        const rect =
+            tile.getBoundingClientRect();
+
+        const x =
+            rect.left -
+            boardRect.left +
+            rect.width / 2;
+
+        const y =
+            rect.top -
+            boardRect.top +
+            rect.height / 2;
+
+        points.push(
+            `${x},${y}`
         );
     });
+
+    const polyline =
+        document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'polyline'
+        );
+
+    polyline.setAttribute(
+        'points',
+        points.join(' ')
+    );
+
+    polyline.setAttribute(
+        'fill',
+        'none'
+    );
+
+    polyline.setAttribute(
+        'stroke',
+        'rgba(255,0,0,0.55)'
+    );
+
+    polyline.setAttribute(
+        'stroke-width',
+        '12'
+    );
+
+    polyline.setAttribute(
+        'stroke-linecap',
+        'round'
+    );
+
+    polyline.setAttribute(
+        'stroke-linejoin',
+        'round'
+    );
+
+    svg.appendChild(
+        polyline
+    );
 }
 
 // ====================================
-// HIGHLIGHT PATH
+// HIGHLIGHT WORD PATH
 // ====================================
 
 function highlightPath(path) {
@@ -129,6 +257,8 @@ function highlightPath(path) {
                 'highlight'
             );
     });
+
+    drawPath(path);
 }
 
 // ====================================
@@ -160,7 +290,10 @@ function solveBoard(board) {
         }
 
         const currentPath =
-            [...path, [row, col]];
+            [
+                ...path,
+                [row, col]
+            ];
 
         if (
             dictionary.has(
@@ -234,12 +367,12 @@ function solveBoard(board) {
 
             const visited =
                 Array(GRID_SIZE)
-                .fill()
-                .map(() =>
-                    Array(
-                        GRID_SIZE
-                    ).fill(false)
-                );
+                    .fill()
+                    .map(() =>
+                        Array(
+                            GRID_SIZE
+                        ).fill(false)
+                    );
 
             dfs(
                 row,
@@ -304,7 +437,11 @@ function displayResults(
     ) {
 
         resultsDiv.innerHTML =
-            '<p>No words found.</p>';
+            `
+            <p>
+                No words found.
+            </p>
+            `;
 
         return;
     }
@@ -319,51 +456,65 @@ function displayResults(
     `;
 
     sortedResults.forEach(
-        ([word, path]) => {
+        ([word]) => {
 
             html += `
                 <li
                     class="word-item"
                     data-word="${word}"
                 >
-                    ${word}
-                    (${word.length})
+                    <span>
+                        ${word}
+                    </span>
+
+                    <span>
+                        ${word.length}
+                    </span>
                 </li>
             `;
         }
     );
 
-    html += '</ul>';
+    html += `
+        </ul>
+    `;
 
     resultsDiv.innerHTML =
         html;
 
-    const items =
-        document.querySelectorAll(
+    document
+        .querySelectorAll(
             '.word-item'
-        );
+        )
+        .forEach(item => {
 
-    items.forEach(item => {
+            item.addEventListener(
+                'click',
+                () => {
 
-        item.addEventListener(
-            'click',
-            () => {
+                    const word =
+                        item.dataset.word;
 
-                const word =
-                    item.dataset.word;
+                    const entry =
+                        sortedResults.find(
+                            result =>
+                                result[0] === word
+                        );
 
-                const path =
-                    sortedResults.find(
-                        entry =>
-                            entry[0] === word
-                    )[1];
+                    if (
+                        entry
+                    ) {
 
-                highlightPath(
-                    path
-                );
-            }
-        );
-    });
+                        const path =
+                            entry[1];
+
+                        highlightPath(
+                            path
+                        );
+                    }
+                }
+            );
+        });
 }
 
 // ====================================

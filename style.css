@@ -1,41 +1,355 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    text-align: center;
+/* ====================================
+   GLOBAL
+==================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
+body {
+
+    font-family: Arial, sans-serif;
+
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 40px;
+
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #70956c 0px,
+            #70956c 20px,
+            #789e74 20px,
+            #789e74 40px
+        );
+
+    color: white;
+}
+
+/* ====================================
+   MAIN CONTAINER
+==================================== */
 
 .container {
-    max-width: 600px;
-    margin: 40px auto;
+
+    width: 100%;
+    max-width: 1200px;
+
+    text-align: center;
 }
+
+h1 {
+
+    font-size: 3rem;
+    margin-bottom: 10px;
+
+    text-shadow:
+        0 2px 5px rgba(0,0,0,.4);
+}
+
+.subtitle {
+
+    margin-bottom: 30px;
+
+    color: rgba(255,255,255,.85);
+
+    font-size: 1.1rem;
+}
+
+/* ====================================
+   BOARD FRAME
+==================================== */
+
+.board-container {
+
+    position: relative;
+
+    display: inline-block;
+
+    padding: 25px;
+
+    border-radius: 40px;
+
+    background:
+        linear-gradient(
+            #9ce18f,
+            #83cf77
+        );
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.35);
+}
+
+/* ====================================
+   BOARD INTERIOR
+==================================== */
 
 .grid {
+
     display: grid;
-    grid-template-columns: repeat(4, 60px);
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
+
+    grid-template-columns:
+        repeat(4, 160px);
+
+    gap: 22px;
+
+    padding: 30px;
+
+    border-radius: 30px;
+
+    background:
+        radial-gradient(
+            circle,
+            #516553,
+            #3f5141
+        );
+
+    position: relative;
 }
 
-.grid input {
-    width: 60px;
-    height: 60px;
+/* ====================================
+   SVG PATH
+==================================== */
+
+#pathOverlay {
+
+    position: absolute;
+
+    top: 25px;
+    left: 25px;
+    right: 25px;
+    bottom: 25px;
+
+    width: calc(100% - 50px);
+    height: calc(100% - 50px);
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+/* ====================================
+   TILES
+==================================== */
+
+#letterGrid input {
+
+    width: 160px;
+    height: 160px;
+
+    border: none;
+
+    border-radius: 18px;
+
     text-align: center;
-    font-size: 2rem;
-    text-transform: lowercase;
+
+    font-size: 6rem;
+    font-weight: 900;
+
+    text-transform: uppercase;
+
+    color: #111;
+
+    position: relative;
+    z-index: 10;
+
+    cursor: pointer;
+
+    outline: none;
+
+    background:
+        linear-gradient(
+            180deg,
+            #efd7a8,
+            #e8c98a
+        );
+
+    box-shadow:
+        0 15px 25px rgba(0,0,0,.35),
+        inset 0 2px 2px rgba(255,255,255,.4);
+
+    transition:
+        transform .15s,
+        box-shadow .15s;
+}
+
+#letterGrid input:focus {
+
+    transform: scale(1.03);
+}
+
+/* ====================================
+   SELECTED TILE
+==================================== */
+
+.highlight {
+
+    background: #ffffff !important;
+
+    box-shadow:
+        0 0 25px rgba(255,255,255,.95),
+        0 10px 25px rgba(0,0,0,.3);
+
+    transform: scale(1.03);
+}
+
+/* ====================================
+   BUTTONS
+==================================== */
+
+.button-row {
+
+    margin-top: 25px;
+
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 
 button {
-    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding:
+        14px 28px;
+
+    font-size: 1rem;
+    font-weight: bold;
+
     cursor: pointer;
+
+    background:
+        linear-gradient(
+            #8ee083,
+            #6fc863
+        );
+
+    color: #1d2f1d;
+
+    box-shadow:
+        0 5px 12px rgba(0,0,0,.25);
+
+    transition:
+        transform .15s;
 }
 
-#results {
-    margin-top: 20px;
-    text-align: left;
+button:hover {
+
+    transform:
+        translateY(-2px);
 }
 
-.highlight {
-    background-color: gold;
-    border: 2px solid orange;
+/* ====================================
+   STATS
+==================================== */
+
+.stats {
+
+    margin-top: 25px;
+
+    display: flex;
+    justify-content: center;
+}
+
+.stat-card {
+
+    background:
+        rgba(0,0,0,.25);
+
+    padding: 15px 30px;
+
+    border-radius: 16px;
+}
+
+.stat-title {
+
+    font-size: .9rem;
+
+    opacity: .8;
+}
+
+.stat-value {
+
+    font-size: 2rem;
+
+    font-weight: bold;
+}
+
+/* ====================================
+   RESULTS
+==================================== */
+
+.results {
+
+    margin-top: 25px;
+
+    max-width: 900px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    background:
+        rgba(0,0,0,.25);
+
+    border-radius: 20px;
+
+    padding: 20px;
+}
+
+.word-list {
+
+    list-style: none;
+}
+
+.word-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition:
+        background .15s;
+}
+
+.word-item:hover {
+
+    background:
+        rgba(255,255,255,.1);
+}
+
+/* ====================================
+   MOBILE
+==================================== */
+
+@media (max-width: 900px) {
+
+    .grid {
+
+        grid-template-columns:
+            repeat(4, 90px);
+
+        gap: 12px;
+    }
+
+    #letterGrid input {
+
+        width: 90px;
+        height: 90px;
+
+        font-size: 3.5rem;
+    }
 }
