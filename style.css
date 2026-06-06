@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    text-align: center;
+}
+
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 60px);
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.grid input {
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    font-size: 2rem;
+    text-transform: lowercase;
+}
+
+button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#results {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.highlight {
+    background-color: gold;
+    border: 2px solid orange;
+}
