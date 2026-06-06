@@ -199,6 +199,19 @@ h1 {
     transform: scale(1.03);
 }
 
+.start-highlight {
+
+    background: #7CFF6B !important;
+
+    box-shadow:
+        0 0 25px rgba(124,255,107,.9),
+        0 10px 25px rgba(0,0,0,.3);
+
+    transform: scale(1.08);
+
+    position: relative;
+}
+
 /* ====================================
    BUTTONS
 ==================================== */

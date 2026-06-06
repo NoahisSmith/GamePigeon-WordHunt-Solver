@@ -117,13 +117,12 @@ function getBoard() {
 function clearHighlights() {
 
     document
-        .querySelectorAll(
-            '#letterGrid input'
-        )
+        .querySelectorAll('#letterGrid input')
         .forEach(tile => {
 
             tile.classList.remove(
-                'highlight'
+                'highlight',
+                'start-highlight'
             );
         });
 
@@ -247,16 +246,28 @@ function highlightPath(path) {
             '#letterGrid input'
         );
 
-    path.forEach(([row, col]) => {
+    path.forEach(
+        ([row, col], index) => {
 
-        const index =
-            row * GRID_SIZE + col;
+            const tileIndex =
+                row * GRID_SIZE + col;
 
-        inputs[index]
-            .classList.add(
-                'highlight'
-            );
-    });
+            if (index === 0) {
+
+                inputs[tileIndex]
+                    .classList.add(
+                        'start-highlight'
+                    );
+
+            } else {
+
+                inputs[tileIndex]
+                    .classList.add(
+                        'highlight'
+                    );
+            }
+        }
+    );
 
     drawPath(path);
 }
