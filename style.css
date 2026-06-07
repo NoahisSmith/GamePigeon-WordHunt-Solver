@@ -231,8 +231,7 @@ button {
 
     border-radius: 12px;
 
-    padding:
-        14px 28px;
+    padding: 14px 28px;
 
     font-size: 1rem;
     font-weight: bold;
@@ -251,13 +250,33 @@ button {
         0 5px 12px rgba(0,0,0,.25);
 
     transition:
-        transform .15s;
+        transform .15s,
+        opacity .15s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
 
-    transform:
-        translateY(-2px);
+    transform: translateY(-2px);
+}
+
+button:disabled {
+
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+button.btn-error {
+
+    background:
+        linear-gradient(
+            #e08383,
+            #c86363
+        );
+
+    color: #fff;
+
+    cursor: not-allowed;
 }
 
 /* ====================================
@@ -270,12 +289,12 @@ button:hover {
 
     display: flex;
     justify-content: center;
+    gap: 15px;
 }
 
 .stat-card {
 
-    background:
-        rgba(0,0,0,.25);
+    background: rgba(0,0,0,.25);
 
     padding: 15px 30px;
 
@@ -309,8 +328,7 @@ button:hover {
     margin-left: auto;
     margin-right: auto;
 
-    background:
-        rgba(0,0,0,.25);
+    background: rgba(0,0,0,.25);
 
     border-radius: 20px;
 
@@ -327,6 +345,7 @@ button:hover {
     display: flex;
 
     justify-content: space-between;
+    align-items: center;
 
     padding: 12px;
 
@@ -334,30 +353,85 @@ button:hover {
 
     cursor: pointer;
 
-    transition:
-        background .15s;
+    transition: background .15s;
 }
 
 .word-item:hover {
 
-    background:
-        rgba(255,255,255,.1);
+    background: rgba(255,255,255,.1);
+}
+
+.word-text {
+
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.word-meta {
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.word-score {
+
+    font-size: .8rem;
+    font-weight: bold;
+
+    background: rgba(124,255,107,.18);
+
+    color: #a8ffaa;
+
+    padding: 3px 9px;
+
+    border-radius: 8px;
+}
+
+.word-length {
+
+    min-width: 20px;
+
+    text-align: right;
+
+    opacity: .6;
 }
 
 .selected-word {
 
     background:
-        rgba(
-            124,
-            255,
-            107,
-            0.25
-        );
+        rgba(124, 255, 107, 0.25);
 
     border-left:
         4px solid #7cff6b;
 
     font-weight: bold;
+}
+
+/* ====================================
+   ERROR / PLACEHOLDER
+==================================== */
+
+.error-msg {
+
+    color: #ffb3b3;
+
+    padding: 12px;
+
+    font-size: .95rem;
+
+    line-height: 1.6;
+}
+
+.error-msg code {
+
+    background: rgba(0,0,0,.25);
+
+    padding: 1px 5px;
+
+    border-radius: 4px;
+
+    font-size: .9em;
 }
 
 /* ====================================

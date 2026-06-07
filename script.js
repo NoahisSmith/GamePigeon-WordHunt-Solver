@@ -11,20 +11,86 @@ const GRID_SIZE = 4;
 
 const directions = [
     [-1, -1],
-    [-1, 0],
-    [-1, 1],
-    [0, -1],
-    [0, 1],
-    [1, -1],
-    [1, 0],
-    [1, 1]
+    [-1,  0],
+    [-1,  1],
+    [ 0, -1],
+    [ 0,  1],
+    [ 1, -1],
+    [ 1,  0],
+    [ 1,  1]
 ];
+
+// Word Hunt point values by word length.
+// NOTE: fetch('dictionary.txt') requires a web server —
+// it will fail silently if opened directly via file://.
+
+const WORD_SCORES = {
+    3: 100,
+    4: 400,
+    5: 800,
+    6: 1400,
+    7: 1800
+};
+
+function getWordScore(length) {
+    return WORD_SCORES[length] ?? 2200;
+}
+
+// ====================================
+// INPUT AUTO-ADVANCE
+// ====================================
+
+const inputs =
+    document.querySelectorAll(
+        '#letterGrid input'
+    );
+
+inputs.forEach(
+    (input, index) => {
+
+        input.addEventListener(
+            'input',
+            e => {
+
+                e.target.value =
+                    e.target.value
+                    .toUpperCase();
+
+                if (
+                    e.target.value &&
+                    index < inputs.length - 1
+                ) {
+                    inputs[index + 1].focus();
+                }
+            }
+        );
+
+        input.addEventListener(
+            'keydown',
+            e => {
+
+                if (
+                    e.key === 'Backspace' &&
+                    !input.value &&
+                    index > 0
+                ) {
+                    inputs[index - 1].focus();
+                }
+            }
+        );
+    }
+);
 
 // ====================================
 // LOAD DICTIONARY
 // ====================================
 
 async function loadDictionary() {
+
+    const solveBtn =
+        document.getElementById(
+            'solveBtn'
+        );
 
     try {
 
@@ -63,12 +129,30 @@ async function loadDictionary() {
             `Loaded ${dictionary.size} words`
         );
 
+        solveBtn.disabled = false;
+        solveBtn.textContent = 'Solve';
+
     } catch (error) {
 
         console.error(
             'Dictionary load failed:',
             error
         );
+
+        solveBtn.textContent = 'Dict. Error';
+        solveBtn.classList.add('btn-error');
+
+        document.getElementById('results')
+            .innerHTML = `
+                <div class="error-msg">
+                    ⚠️ Could not load
+                    <code>dictionary.txt</code>.
+                    Make sure the files are
+                    served from a web server,
+                    not opened via
+                    <code>file://</code>.
+                </div>
+            `;
     }
 }
 
@@ -77,11 +161,6 @@ async function loadDictionary() {
 // ====================================
 
 function getBoard() {
-
-    const inputs =
-        document.querySelectorAll(
-            '#letterGrid input'
-        );
 
     const board = [];
 
@@ -110,6 +189,21 @@ function getBoard() {
     }
 
     return board;
+}
+
+// ====================================
+// VALIDATE BOARD
+// ====================================
+
+function validateBoard(board) {
+
+    return board
+        .flat()
+        .every(
+            cell =>
+                cell.length === 1 &&
+                /[a-z]/.test(cell)
+        );
 }
 
 // ====================================
@@ -161,11 +255,6 @@ function drawPath(path) {
     const boardRect =
         board.getBoundingClientRect();
 
-    const inputs =
-        document.querySelectorAll(
-            '#letterGrid input'
-        );
-
     const points = [];
 
     path.forEach(([row, col]) => {
@@ -189,9 +278,7 @@ function drawPath(path) {
             boardRect.top +
             rect.height / 2;
 
-        points.push(
-            `${x},${y}`
-        );
+        points.push(`${x},${y}`);
     });
 
     const polyline =
@@ -205,34 +292,13 @@ function drawPath(path) {
         points.join(' ')
     );
 
-    polyline.setAttribute(
-        'fill',
-        'none'
-    );
+    polyline.setAttribute('fill',         'none');
+    polyline.setAttribute('stroke',       'rgba(255,0,0,0.55)');
+    polyline.setAttribute('stroke-width', '12');
+    polyline.setAttribute('stroke-linecap',  'round');
+    polyline.setAttribute('stroke-linejoin', 'round');
 
-    polyline.setAttribute(
-        'stroke',
-        'rgba(255,0,0,0.55)'
-    );
-
-    polyline.setAttribute(
-        'stroke-width',
-        '12'
-    );
-
-    polyline.setAttribute(
-        'stroke-linecap',
-        'round'
-    );
-
-    polyline.setAttribute(
-        'stroke-linejoin',
-        'round'
-    );
-
-    svg.appendChild(
-        polyline
-    );
+    svg.appendChild(polyline);
 }
 
 // ====================================
@@ -243,31 +309,17 @@ function highlightPath(path) {
 
     clearHighlights();
 
-    const inputs =
-        document.querySelectorAll(
-            '#letterGrid input'
-        );
-
     path.forEach(
         ([row, col], index) => {
 
             const tileIndex =
                 row * GRID_SIZE + col;
 
-            if (index === 0) {
-
-                inputs[tileIndex]
-                    .classList.add(
-                        'start-highlight'
-                    );
-
-            } else {
-
-                inputs[tileIndex]
-                    .classList.add(
-                        'highlight'
-                    );
-            }
+            inputs[tileIndex].classList.add(
+                index === 0
+                    ? 'start-highlight'
+                    : 'highlight'
+            );
         }
     );
 
@@ -280,8 +332,7 @@ function highlightPath(path) {
 
 function solveBoard(board) {
 
-    const foundWords =
-        new Map();
+    const foundWords = new Map();
 
     function dfs(
         row,
@@ -291,55 +342,31 @@ function solveBoard(board) {
         path
     ) {
 
-        currentWord +=
-            board[row][col];
+        currentWord += board[row][col];
 
-        if (
-            !prefixes.has(
-                currentWord
-            )
-        ) {
+        if (!prefixes.has(currentWord)) {
             return;
         }
 
         const currentPath =
-            [
-                ...path,
-                [row, col]
-            ];
+            [...path, [row, col]];
 
         if (
-            dictionary.has(
-                currentWord
-            )
+            dictionary.has(currentWord) &&
+            !foundWords.has(currentWord)
         ) {
-
-            if (
-                !foundWords.has(
-                    currentWord
-                )
-            ) {
-
-                foundWords.set(
-                    currentWord,
-                    currentPath
-                );
-            }
+            foundWords.set(
+                currentWord,
+                currentPath
+            );
         }
 
-        visited[row][col] =
-            true;
+        visited[row][col] = true;
 
-        for (
-            const [dr, dc]
-            of directions
-        ) {
+        for (const [dr, dc] of directions) {
 
-            const newRow =
-                row + dr;
-
-            const newCol =
-                col + dc;
+            const newRow = row + dr;
+            const newCol = col + dc;
 
             const validMove =
                 newRow >= 0 &&
@@ -351,7 +378,6 @@ function solveBoard(board) {
                 validMove &&
                 !visited[newRow][newCol]
             ) {
-
                 dfs(
                     newRow,
                     newCol,
@@ -362,8 +388,7 @@ function solveBoard(board) {
             }
         }
 
-        visited[row][col] =
-            false;
+        visited[row][col] = false;
     }
 
     for (
@@ -382,18 +407,10 @@ function solveBoard(board) {
                 Array(GRID_SIZE)
                     .fill()
                     .map(() =>
-                        Array(
-                            GRID_SIZE
-                        ).fill(false)
+                        Array(GRID_SIZE).fill(false)
                     );
 
-            dfs(
-                row,
-                col,
-                '',
-                visited,
-                []
-            );
+            dfs(row, col, '', visited, []);
         }
     }
 
@@ -409,26 +426,12 @@ function sortResults(wordMap) {
     return [...wordMap.entries()]
         .sort((a, b) => {
 
-            const wordA =
-                a[0];
+            const lenDiff =
+                b[0].length - a[0].length;
 
-            const wordB =
-                b[0];
+            if (lenDiff !== 0) return lenDiff;
 
-            if (
-                wordB.length !==
-                wordA.length
-            ) {
-
-                return (
-                    wordB.length -
-                    wordA.length
-                );
-            }
-
-            return wordA.localeCompare(
-                wordB
-            );
+            return a[0].localeCompare(b[0]);
         });
 }
 
@@ -436,74 +439,68 @@ function sortResults(wordMap) {
 // DISPLAY RESULTS
 // ====================================
 
-function displayResults(
-    sortedResults
-) {
+function displayResults(sortedResults) {
 
     const resultsDiv =
-        document.getElementById(
-            'results'
+        document.getElementById('results');
+
+    const totalScore =
+        sortedResults.reduce(
+            (sum, [word]) =>
+                sum + getWordScore(word.length),
+            0
         );
-		
-		document
-			.getElementById('wordCount')
-			.textContent = '0';
-			//sortedResults.length;
-		
-    if (
-        sortedResults.length === 0
-    ) {
+
+    document
+        .getElementById('wordCount')
+        .textContent = sortedResults.length;
+
+    document
+        .getElementById('maxScore')
+        .textContent = totalScore.toLocaleString();
+
+    if (sortedResults.length === 0) {
 
         resultsDiv.innerHTML =
-            `
-            <p>
-                No words found.
-            </p>
-            `;
+            `<p>No words found.</p>`;
 
         return;
     }
 
-    let html = `
-        <h2>
-            ${sortedResults.length}
-            Words Found
-        </h2>
+    let html = `<ul class="word-list">`;
 
-        <ul class="word-list">
-    `;
+    sortedResults.forEach(([word]) => {
 
-    sortedResults.forEach(
-        ([word]) => {
+        const score =
+            getWordScore(word.length);
 
-            html += `
-                <li
-                    class="word-item"
-                    data-word="${word}"
-                >
-                    <span>
-                        ${word}
+        html += `
+            <li
+                class="word-item"
+                data-word="${word}"
+            >
+                <span class="word-text">
+                    ${word}
+                </span>
+
+                <span class="word-meta">
+                    <span class="word-score">
+                        ${score} pts
                     </span>
-
-                    <span>
+                    <span class="word-length">
                         ${word.length}
                     </span>
-                </li>
-            `;
-        }
-    );
+                </span>
+            </li>
+        `;
+    });
 
-    html += `
-        </ul>
-    `;
+    html += `</ul>`;
 
-    resultsDiv.innerHTML =
-        html;
+    resultsDiv.innerHTML = html;
 
     document
-        .querySelectorAll(
-            '.word-item'
-        )
+        .querySelectorAll('.word-item')
         .forEach(item => {
 
             item.addEventListener(
@@ -513,26 +510,14 @@ function displayResults(
                     const word =
                         item.dataset.word;
 
-                    const entry =
-                        sortedResults.find(
+                    const index =
+                        sortedResults.findIndex(
                             result =>
                                 result[0] === word
                         );
 
-                    if (
-                        entry
-                    ) {
-
-                        const path =
-                            entry[1];
-
-                        const index =
-							sortedResults.findIndex(
-								result =>
-									result[0] === word
-							);
-
-						selectWord(index);
+                    if (index !== -1) {
+                        selectWord(index);
                     }
                 }
             );
@@ -560,13 +545,10 @@ function selectWord(index) {
         );
 
     items.forEach(item =>
-        item.classList.remove(
-            'selected-word'
-        )
+        item.classList.remove('selected-word')
     );
 
-    const selectedItem =
-        items[index];
+    const selectedItem = items[index];
 
     if (selectedItem) {
 
@@ -586,69 +568,120 @@ function selectWord(index) {
 }
 
 // ====================================
+// CLEAR BUTTON
+// ====================================
+
+document
+    .getElementById('clearBtn')
+    .addEventListener('click', () => {
+
+        inputs.forEach(input => {
+            input.value = '';
+        });
+
+        clearHighlights();
+
+        currentResults = [];
+        currentWordIndex = -1;
+
+        document
+            .getElementById('wordCount')
+            .textContent = '0';
+
+        document
+            .getElementById('maxScore')
+            .textContent = '0';
+
+        document
+            .getElementById('results')
+            .innerHTML = `
+                <div class="placeholder">
+                    Enter letters and click Solve.
+                </div>
+            `;
+
+        inputs[0].focus();
+    });
+
+// ====================================
 // SOLVE BUTTON
 // ====================================
 
 document
-    .getElementById(
-        'solveBtn'
-    )
-    .addEventListener(
-        'click',
-        () => {
+    .getElementById('solveBtn')
+    .addEventListener('click', () => {
 
-            clearHighlights();
+        clearHighlights();
 
-            const board =
-                getBoard();
+        const board = getBoard();
 
-            const results =
-                solveBoard(
-                    board
-                );
+        if (!validateBoard(board)) {
 
-            const sorted =
-                sortResults(
-                    results
-                );
+            document
+                .getElementById('results')
+                .innerHTML = `
+                    <div class="error-msg">
+                        ⚠️ Please fill in all
+                        16 tiles before solving.
+                    </div>
+                `;
 
-            currentResults = sorted;
-			currentWordIndex = -1;
-
-			displayResults(sorted);
-			if (sorted.length > 0) {
-				selectWord(0);
-			}
+            return;
         }
-    );
+
+        const results = solveBoard(board);
+        const sorted  = sortResults(results);
+
+        currentResults   = sorted;
+        currentWordIndex = -1;
+
+        displayResults(sorted);
+
+        if (sorted.length > 0) {
+            selectWord(0);
+        }
+    });
+
+// ====================================
+// NEXT BUTTON
+// ====================================
 
 document
     .getElementById('nextBtn')
-    .addEventListener(
-        'click',
-        () => {
+    .addEventListener('click', () => {
 
-            if (
-                currentResults.length === 0
-            ) {
-                return;
-            }
-
-            currentWordIndex++;
-
-            if (
-                currentWordIndex >=
-                currentResults.length
-            ) {
-
-                currentWordIndex = 0;
-            }
-
-            selectWord(
-                currentWordIndex
-            );
+        if (currentResults.length === 0) {
+            return;
         }
-    );
+
+        currentWordIndex =
+            (currentWordIndex + 1) %
+            currentResults.length;
+
+        selectWord(currentWordIndex);
+    });
+
+// ====================================
+// ENTER KEY SHORTCUT
+// ====================================
+
+document.addEventListener(
+    'keydown',
+    e => {
+
+        const solveBtn =
+            document.getElementById(
+                'solveBtn'
+            );
+
+        if (
+            e.key === 'Enter' &&
+            !solveBtn.disabled
+        ) {
+            solveBtn.click();
+        }
+    }
+);
 
 // ====================================
 // INIT

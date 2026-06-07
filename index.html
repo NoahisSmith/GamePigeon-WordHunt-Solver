@@ -10,7 +10,7 @@
 
     <title>Word Hunt Solver</title>
 
-	<link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <link
         rel="stylesheet"
@@ -44,101 +44,22 @@
                 class="grid"
             >
 
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
-
-                <input
-                    type="text"
-                    maxlength="1"
-                    autocomplete="off"
-                >
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
+                <input type="text" maxlength="1" autocomplete="off">
 
             </div>
 
@@ -148,17 +69,20 @@
 
         <div class="button-row">
 
-            <button id="solveBtn">
-                Solve
+            <button
+                id="solveBtn"
+                disabled
+            >
+                Loading…
             </button>
 
             <button id="clearBtn">
                 Clear
             </button>
 
-			<button id="nextBtn">
-				Next
-			</button>
+            <button id="nextBtn">
+                Next
+            </button>
 
         </div>
 
@@ -167,18 +91,13 @@
         <div class="stats">
 
             <div class="stat-card">
+                <div class="stat-title">Words Found</div>
+                <div id="wordCount" class="stat-value">0</div>
+            </div>
 
-                <div class="stat-title">
-                    Words Found
-                </div>
-
-                <div
-                    id="wordCount"
-                    class="stat-value"
-                >
-                    0
-                </div>
-
+            <div class="stat-card">
+                <div class="stat-title">Max Score</div>
+                <div id="maxScore" class="stat-value">0</div>
             </div>
 
         </div>
@@ -191,121 +110,12 @@
         >
 
             <div class="placeholder">
-
-                Enter letters and click
-                Solve.
-
+                Enter letters and click Solve.
             </div>
 
         </div>
 
     </div>
-
-    <script>
-
-        // Auto move to next tile
-
-        const inputs =
-            document.querySelectorAll(
-                '#letterGrid input'
-            );
-
-        inputs.forEach(
-            (input, index) => {
-
-                input.addEventListener(
-                    'input',
-                    e => {
-
-                        e.target.value =
-                            e.target.value
-                            .toUpperCase();
-
-                        if (
-                            e.target.value &&
-                            index <
-                            inputs.length - 1
-                        ) {
-
-                            inputs[
-                                index + 1
-                            ].focus();
-                        }
-                    }
-                );
-
-                input.addEventListener(
-                    'keydown',
-                    e => {
-
-                        if (
-                            e.key ===
-                            'Backspace' &&
-                            !input.value &&
-                            index > 0
-                        ) {
-
-                            inputs[
-                                index - 1
-                            ].focus();
-                        }
-                    }
-                );
-            }
-        );
-
-        // Clear Board
-
-        document
-            .getElementById(
-                'clearBtn'
-            )
-            .addEventListener(
-                'click',
-                () => {
-
-                    inputs.forEach(
-                        input => {
-
-                            input.value =
-                                '';
-
-                            input.classList.remove(
-                                'highlight'
-                            );
-                        }
-                    );
-
-                    const svg =
-                        document.getElementById(
-                            'pathOverlay'
-                        );
-
-                    svg.innerHTML = '';
-
-                    document
-                        .getElementById(
-                            'results'
-                        )
-                        .innerHTML =
-                        `
-                        <div class="placeholder">
-                            Enter letters and click Solve.
-                        </div>
-                        `;
-
-                    document
-                        .getElementById(
-                            'wordCount'
-                        )
-                        .textContent =
-                        '0';
-
-                    inputs[0].focus();
-                }
-            );
-
-    </script>
 
     <script src="script.js"></script>
 
