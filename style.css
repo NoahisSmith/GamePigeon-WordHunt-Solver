@@ -344,6 +344,22 @@ button:hover {
         rgba(255,255,255,.1);
 }
 
+.selected-word {
+
+    background:
+        rgba(
+            124,
+            255,
+            107,
+            0.25
+        );
+
+    border-left:
+        4px solid #7cff6b;
+
+    font-weight: bold;
+}
+
 /* ====================================
    MOBILE
 ==================================== */

@@ -4,6 +4,8 @@
 
 let dictionary = new Set();
 let prefixes = new Set();
+let currentResults = [];
+let currentWordIndex = -1;
 
 const GRID_SIZE = 4;
 
@@ -519,13 +521,63 @@ function displayResults(
                         const path =
                             entry[1];
 
-                        highlightPath(
-                            path
-                        );
+                        const index =
+							sortedResults.findIndex(
+								result =>
+									result[0] === word
+							);
+
+						selectWord(index);
                     }
                 }
             );
         });
+}
+
+// ====================================
+// SELECT WORD
+// ====================================
+
+function selectWord(index) {
+
+    if (
+        index < 0 ||
+        index >= currentResults.length
+    ) {
+        return;
+    }
+
+    currentWordIndex = index;
+
+    const items =
+        document.querySelectorAll(
+            '.word-item'
+        );
+
+    items.forEach(item =>
+        item.classList.remove(
+            'selected-word'
+        )
+    );
+
+    const selectedItem =
+        items[index];
+
+    if (selectedItem) {
+
+        selectedItem.classList.add(
+            'selected-word'
+        );
+
+        selectedItem.scrollIntoView({
+            block: 'nearest'
+        });
+    }
+
+    const path =
+        currentResults[index][1];
+
+    highlightPath(path);
 }
 
 // ====================================
@@ -555,8 +607,40 @@ document
                     results
                 );
 
-            displayResults(
-                sorted
+            currentResults = sorted;
+			currentWordIndex = -1;
+
+			displayResults(sorted);
+			if (sorted.length > 0) {
+				selectWord(0);
+			}
+        }
+    );
+
+document
+    .getElementById('nextBtn')
+    .addEventListener(
+        'click',
+        () => {
+
+            if (
+                currentResults.length === 0
+            ) {
+                return;
+            }
+
+            currentWordIndex++;
+
+            if (
+                currentWordIndex >=
+                currentResults.length
+            ) {
+
+                currentWordIndex = 0;
+            }
+
+            selectWord(
+                currentWordIndex
             );
         }
     );
