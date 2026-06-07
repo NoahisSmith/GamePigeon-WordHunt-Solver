@@ -444,7 +444,12 @@ function displayResults(
         document.getElementById(
             'results'
         );
-
+		
+		document
+			.getElementById('wordCount')
+			.textContent = '0';
+			//sortedResults.length;
+		
     if (
         sortedResults.length === 0
     ) {
